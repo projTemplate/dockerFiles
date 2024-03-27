@@ -1,0 +1,28 @@
+version: "3.9"
+
+services:
+#  pgadmin:
+#    image: dpage/pgadmin4
+#    ports:
+#      - "5050:80"
+#    environment:
+#      PGADMIN_DEFAULT_EMAIL: user@domain.com
+#      PGADMIN_DEFAULT_PASSWORD: SuperSecret
+  postgres-db:
+    image: postgres
+    container_name: postgres_main
+    env_file: .env  # Specify the environment file
+    environment:
+      POSTdGRES_DB: ${POSTGRES_DB3},${POSTGRES_DB2},${POSTGRES_DB1}
+      POSTGRES_USER: ${PG_USER_NAME}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+    ports:
+      - "${POSTGRES_PORT}:5432" # Change the port mapping here (host_port:container_port)~`
+
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    restart: always
+
+volumes:
+  postgres_data:
+    name: main-postgres #explicitly sets its name to main-postgres

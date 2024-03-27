@@ -1,0 +1,40 @@
+version: '3.7'
+services:
+  # your-service:
+  #   build:
+  #     context: .
+  #     dockerfile: Dockerfile
+  #   links:
+  #     - localdev-mongo
+  #   container_name: your-service
+  #   environment:
+  #     MONGO_APP_DATABASE: "db1"
+  #     MONGO_CONNECTION_STRING: mongodb://localdev-mongo:27017/?directConnection=true&tls=false
+  #   command: ${your app run command}
+  #   depends_on:
+  #     - localdev-mongo
+  #   restart: unless-stopped
+  localdev-mongo:
+    image: mongo:latest
+    environment:
+      MONGO_APP_DATABASE: "db1"
+      MONGO_REPLICA_HOST: host.docker.internal
+      MONGO_REPLICA_PORT: 27018
+    container_name: localdev-mongo
+    entrypoint: >
+      /bin/bash -c '
+      echo "rs.initiate()" > /docker-entrypoint-initdb.d/1-init-replicaset.js &&
+      echo "db = db.getSiblingDB(process.env[$0]);" > /docker-entrypoint-initdb.d/2-init-db-collection.js &&
+      echo "db.createCollection($1, { capped: false });" >> /docker-entrypoint-initdb.d/2-init-db-collection.js &&
+      echo "db.init.insert([{ message: $2 }]);" >> /docker-entrypoint-initdb.d/2-init-db-collection.js &&
+      /usr/local/bin/docker-entrypoint.sh mongod --replSet rs0 --bind_ip_all --noauth' "'MONGO_APP_DATABASE'" "'init'" "'db initialized successfully'"
+    expose:
+      - 27017
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongodb-data:/data/db
+    restart: unless-stopped
+
+volumes:
+  mongodb-data:

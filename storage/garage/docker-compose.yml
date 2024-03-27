@@ -1,0 +1,18 @@
+version: "3.9"
+
+services:
+  garage:
+        container_name: ksa-garage
+        image: dxflrs/garage:v0.8.1
+        ports:
+            - 3900:3900
+            - 3901:3901
+            - 3902:3902
+        volumes:
+            - ./garage.toml:/etc/garage.toml
+            - garage-meta:/var/lib/garage/meta:rw
+            - garage-data:/var/lib/garage/data:rw
+volumes:
+    # Object storage
+    garage-data:
+    garage-meta:
